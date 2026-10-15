@@ -12,4 +12,4 @@ npm run dev
 
 The dev server listens on port 8080.
 
-Binary assets (fonts and the share image) are stored as `.b64` files. `scripts/restore-assets.mjs` writes them back before the first run.
+Fonts and the share image are stored as base64 (`.b64` or `.b64.partNN`). `scripts/restore-assets.mjs` writes the binary files back before the first run.
