@@ -1,12 +1,11 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-export VITE_AUTH_ENABLED=false
-
-if ! command -v node >/dev/null 2>&1; then
-  echo "未检测到 Node.js。请先安装：https://nodejs.org"
-  read -r -p "按回车关闭..."
-  exit 1
-fi
+ROOT="$(pwd)"
+case "$(uname -m)" in
+  arm64|aarch64) ARCH="darwin-arm64" ;;
+  *) ARCH="darwin-x64" ;;
+esac
+NODE="$ROOT/portable/node/node-v22.23.3-$ARCH/bin/node"
 
 if curl -sf -o /dev/null --max-time 1 http://127.0.0.1:8080/; then
   open "http://127.0.0.1:8080/"
@@ -15,22 +14,21 @@ if curl -sf -o /dev/null --max-time 1 http://127.0.0.1:8080/; then
   exit 0
 fi
 
-if [ ! -d node_modules ]; then
-  echo "第一次运行，正在安装依赖..."
-  npm install || {
-    echo "依赖安装失败。"
-    read -r -p "按回车关闭..."
-    exit 1
-  }
+if [ ! -x "$NODE" ]; then
+  echo "正在解压内置 Node.js，只需这一次..."
+  mkdir -p "$ROOT/portable/node"
+  tar --no-same-owner -xzf "$ROOT/portable/node-dist/node-v22.23.3-$ARCH.tar.gz" -C "$ROOT/portable/node" || true
+  chmod +x "$NODE" 2>/dev/null || true
 fi
 
-if [ -f scripts/restore-assets.mjs ]; then
-  node scripts/restore-assets.mjs
+if [ ! -x "$NODE" ]; then
+  echo "内置 Node.js 解压失败。"
+  read -r -p "按回车关闭..."
+  exit 1
 fi
 
 echo "正在启动。浏览器会在服务就绪后自动打开。"
 echo "关闭此窗口即停止服务。"
-
 (
   for _ in $(seq 1 60); do
     if curl -sf -o /dev/null --max-time 1 http://127.0.0.1:8080/; then
@@ -40,8 +38,7 @@ echo "关闭此窗口即停止服务。"
     sleep 1
   done
 ) &
-
-npm run dev
+"$NODE" "$ROOT/portable/serve.mjs"
 echo
 echo "服务已停止。"
 read -r -p "按回车关闭..."

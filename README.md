@@ -4,21 +4,24 @@ Browser recreation of the DeepSeek Harness opening sequence: logo, access gate, 
 
 ## 一键启动
 
-需要已安装 [Node.js](https://nodejs.org)。
+克隆之后不需要安装 Node.js，也不需要 `npm install`。Node.js 22.23.3 的官方运行时和已经打包好的页面都在 `portable/` 里。
 
 - Windows：双击 `一键启动.bat`
 - macOS：在终端执行一次 `chmod +x 一键启动.command`，之后双击 `一键启动.command`
+- Linux：`chmod +x 一键启动.sh && ./一键启动.sh`
 
-脚本会在第一次运行时安装依赖、还原字体，等服务就绪后自动打开浏览器：http://127.0.0.1:8080 。关闭该窗口即停止服务。
+第一次双击会把仓库里的 Node.js 解压到本机（不联网）。之后直接启动，并自动打开 http://127.0.0.1:8080 。关闭该窗口即停止服务。
 
-## 手动运行
+内置运行时：
+
+- `portable/node-dist/`：Windows x64 / ARM64、macOS Apple 芯片 / Intel、Linux x64 / ARM64
+- `portable/server` 与 `portable/site`：已经编译进仓库的页面和依赖，启动时不再下载任何包
+
+## 开发
+
+改源码时才需要本机的 Node.js：
 
 ```bash
-node scripts/restore-assets.mjs
 npm install
 npm run dev
 ```
-
-开发服务器监听 8080 端口。
-
-字体和分享图以 base64（`.b64` 或 `.b64.partNN`）存放。`scripts/restore-assets.mjs` 会在首次运行前写回二进制文件。

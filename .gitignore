@@ -9,3 +9,6 @@ attachments
 .env
 .env.*
 .DS_Store
+
+# Unpacked on first launch from portable/node-dist. Do not commit.
+portable/node/
